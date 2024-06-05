@@ -44,6 +44,7 @@ dependencies:
   flutter_launcher_icons: ^0.13.1
   path_provider: ^2.1.1
   flutter_native_splash: ^2.2.18
+  file_picker: ^8.0.3
 
 flutter_icons:
   image_path: "assets/lockImage.png" 

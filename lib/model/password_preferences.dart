@@ -76,4 +76,22 @@ class PasswordSharedPreferences {
   static String? getEmail(String nameOfService) {
     return _preferences.getString(nameOfService + "Email");
   }
+
+  static Future importKeysFromJson(Map<String, dynamic> jsonMap) async {
+    for(String key in jsonMap.keys) {
+      dynamic value = jsonMap[key];
+      if(value is String) {
+        _preferences.setString(key, value);
+      } else if(value is bool) {
+        _preferences.setBool(key, value);
+      } else if (value is List<dynamic> && value.isNotEmpty && value.every((e) => e is String)) {
+        List<String> stringList = value.map((e) => e.toString()).toList();
+        _preferences.setStringList(key, stringList);
+      } else if(value is int) {
+        _preferences.setInt(key, value);
+      } else if(value is double) {
+        _preferences.setDouble(key, value);
+      }
+    }
+  }
 }

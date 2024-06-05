@@ -6,6 +6,7 @@ import 'package:password_manager/route.dart' as route;
 import 'package:password_manager/screens/add_detail_screen.dart';
 import 'dart:convert';
 import 'package:path_provider/path_provider.dart';
+import 'package:file_picker/file_picker.dart';
 
 
 class MainScreen extends StatefulWidget {
@@ -27,9 +28,10 @@ class MainScreenState extends State<MainScreen> {
   static const String _settings = 'Settings';
   static const String _exit = 'Exit';
   static const String _backup = 'Backup';
+  static const String _import = 'Import';
   bool _isListItemSelected = false;
   int _selectedListItemIndex = -1;
-  static const List<String> choices = <String>[/*_settings,*/ _backup, _logOut, _exit];
+  static const List<String> choices = <String>[/*_settings,*/ _backup, _import, _logOut, _exit];
   late bool _IsSearching;
   String _searchText = "";
   Icon actionIcon = new Icon(
@@ -137,6 +139,9 @@ class MainScreenState extends State<MainScreen> {
     else if (choice == _backup) {
       _openbackupDialog();
     }
+    else if (choice == _import) {
+      _importButtonHandler();
+    }
   }
 
   void _handleSearchStart() {
@@ -211,6 +216,22 @@ class MainScreenState extends State<MainScreen> {
 
   void _exitApp() {
     SystemNavigator.pop();
+  }
+
+  void _importButtonHandler() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles();
+    if (result != null) {
+      File file = File(result.files.single.path!);
+      String jsonString = file.readAsStringSync();
+      Map<String, dynamic> fileContents = jsonDecode(jsonString);
+      PasswordSharedPreferences.importKeysFromJson(fileContents);
+      setState(() {
+        servicesList = PasswordSharedPreferences.getServicesList() ?? [];
+      });
+      _openImportSuccessDialog();
+    } else {
+      _openImportFailedDialog();
+    }
   }
 
   @override
@@ -368,6 +389,48 @@ class MainScreenState extends State<MainScreen> {
                   ),
                 ))),
       );
+
+  Future _openImportSuccessDialog() => showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+            content: Container(
+                constraints: BoxConstraints.tightFor(height: 100.0),
+                child: Center(
+                  child: Column(
+                    children: [
+                      Text(
+                        'Done importing, Please log back in',
+                        style: TextStyle(fontSize: 16.0),
+                      ),
+                      const SizedBox(height: 20.0),
+                      ElevatedButton(onPressed: _logoutButtonHandler,
+                      child: Text('Ok'))
+                    ],
+                  ),
+                ))),
+      );
+
+  Future _openImportFailedDialog() => showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+            content: Container(
+                constraints: BoxConstraints.tightFor(height: 100.0),
+                child: Center(
+                  child: Column(
+                    children: [
+                      Text(
+                        'Import Failed, Please try again',
+                        style: TextStyle(fontSize: 16.0),
+                      ),
+                      const SizedBox(height: 20.0),
+                      ElevatedButton(onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: Text('Ok'))
+                    ],
+                  ),
+                ))),
+      );     
 
   ListView _buildListView(List<String> serviceList) {
     return ListView.separated(
