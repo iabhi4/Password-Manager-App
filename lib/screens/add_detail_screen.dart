@@ -20,6 +20,7 @@ class AddDetailScreenState extends State<AddDetailScreen> {
   final emailController = TextEditingController();
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
+  final additionalInfoController = TextEditingController();
   late List<String> servicesList;
   String? serviceNameErrorText;
   String? websiteErrorText;
@@ -48,6 +49,7 @@ class AddDetailScreenState extends State<AddDetailScreen> {
     emailController.clear();
     usernameController.clear();
     passwordController.clear();
+    additionalInfoController.clear();
   }
 
   void _submitButtonHandler() {
@@ -65,9 +67,12 @@ class AddDetailScreenState extends State<AddDetailScreen> {
       PasswordSharedPreferences.setWebsite(
           serviceNameController.text.toLowerCase(), websiteController.text);
     }
-    if (websiteController.text.isNotEmpty) {
+    if (usernameController.text.isNotEmpty) {
       PasswordSharedPreferences.setUsername(
           serviceNameController.text.toLowerCase(), usernameController.text);
+    }
+    if(additionalInfoController.text.isNotEmpty) {
+      PasswordSharedPreferences.setAdditionalInfo(serviceNameController.text.toLowerCase(), additionalInfoController.text);
     }
     _clearTextControllers();
     _routetoMainScreen();
@@ -158,7 +163,7 @@ class AddDetailScreenState extends State<AddDetailScreen> {
   }
 
   Future<bool> _onWillPop() async {
-    return false;
+    return true;
   }
 
   Widget addDetailScaffold() {
@@ -248,6 +253,16 @@ class AddDetailScreenState extends State<AddDetailScreen> {
                   controller: passwordController,
                   obscureText: !_passwordVisible,
                   onChanged: (_) => setState(() {}),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(15.0),
+                child: TextField(
+                  decoration: InputDecoration(
+                    labelText: 'Additonal Info (if any)',
+                    floatingLabelBehavior: FloatingLabelBehavior.auto,
+                  ),
+                  controller: additionalInfoController,
                 ),
               ),
               SizedBox(height: 20.0),

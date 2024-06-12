@@ -61,20 +61,28 @@ class PasswordSharedPreferences {
     return _preferences.getString(nameOfService + "Password");
   }
 
-  static Future setWebsite(String nameOfService, String username) async {
-    _preferences.setString(nameOfService + "Website", username);
+  static Future setWebsite(String nameOfService, String website) async {
+    _preferences.setString(nameOfService + "Website", website);
   }
 
   static String? getWebsite(String nameOfService) {
     return _preferences.getString(nameOfService + "Website");
   }
 
-  static Future setEmail(String nameOfService, String password) async {
-    _preferences.setString(nameOfService + "Email", password);
+  static Future setEmail(String nameOfService, String email) async {
+    _preferences.setString(nameOfService + "Email", email);
   }
 
   static String? getEmail(String nameOfService) {
     return _preferences.getString(nameOfService + "Email");
+  }
+
+  static Future setAdditionalInfo(String nameOfService, String additionalInfo) async {
+    _preferences.setString(nameOfService + "AdditionalInfo", additionalInfo);
+  }
+
+  static String? getAdditionalInfo(String nameOfService) {
+    return _preferences.getString(nameOfService + "AdditionalInfo");
   }
 
   static Future importKeysFromJson(Map<String, dynamic> jsonMap) async {

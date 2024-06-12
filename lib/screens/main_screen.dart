@@ -1,12 +1,14 @@
+import 'package:csv/csv.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:password_manager/model/password_preferences.dart';
 import 'package:password_manager/route.dart' as route;
-import 'package:password_manager/screens/add_detail_screen.dart';
 import 'dart:convert';
 import 'package:path_provider/path_provider.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:password_manager/model/encrypt_decrypt_data.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 
 class MainScreen extends StatefulWidget {
@@ -59,7 +61,7 @@ class MainScreenState extends State<MainScreen> {
       });
       return false;
     }
-    _logoutButtonHandler();
+    _openExitDialog();
     return false;
   }
 
@@ -81,9 +83,41 @@ class MainScreenState extends State<MainScreen> {
     } catch (e) {
       print('Error saving file: $e');
     }
-  } else {
-    print('Downloads directory not found');
+    } else {
+      print('Downloads directory not found');
+    }
+    /*if (await _requestPermissions()) {
+      final jsonData = serializeSharedPreferences();
+      final jsonString = jsonEncode(jsonData);
+
+      try {
+        String? directoryPath = await FilePicker.platform.getDirectoryPath();
+        if (directoryPath != null) {
+          final filePath = '$directoryPath/backupDetails.txt';
+          final file = File(filePath);
+
+          await file.writeAsString(jsonString);
+          print('File saved to chosen directory: $filePath');
+          _downloadCompleteDialog(filePath);
+        } else {
+          print('Directory not selected');
+        }
+      } catch (e) {
+        print('Error saving file: $e');
+      }
+    } else {
+      print('Storage permissions not granted');
+    }*/
   }
+
+  Future<bool> _requestPermissions() async {
+    PermissionStatus status = await Permission.storage.request();
+    if (status.isGranted) {
+      return true;
+    } else {
+      openAppSettings();
+      return false;
+    }
   }
 
   Future _downloadCompleteDialog(String path) => showDialog(
@@ -137,7 +171,8 @@ class MainScreenState extends State<MainScreen> {
       _openExitDialog();
     }
     else if (choice == _backup) {
-      _openbackupDialog();
+      _downloadBackupFile();
+      //_openbackupDialog();
     }
     else if (choice == _import) {
       _importButtonHandler();
@@ -205,6 +240,65 @@ class MainScreenState extends State<MainScreen> {
     }
   }
 
+  void _importButtonHandler() async{
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['csv'],
+    );
+    if (result != null) {
+        File file = File(result.files.single.path!);
+        final input = file.openRead();
+        final fields = await input.transform(utf8.decoder).transform(CsvToListConverter()).toList();
+        if(fields[0][0].toString().toLowerCase() != 'service' || fields[0][1].toString().toLowerCase() != 'website'
+           || fields[0][2].toString().toLowerCase() != 'email' || fields[0][3].toString().toLowerCase() != 'username'
+           || fields[0][4].toString().toLowerCase() != 'password' || fields[0][5].toString().toLowerCase() != 'additional-info')
+        {
+          String message = "Import failed, CSV format mismatch";
+          _openImportFailedDialog(message);
+          return;
+        }
+        setState(() {
+          importKeysFromCSV(fields);
+        });
+    } else {
+      String message = "Import failed, Please try again";
+      _openImportFailedDialog(message);
+    }
+  }
+
+  Future importKeysFromCSV(List<List<dynamic>> csvList) async {
+    List<dynamic> fields = csvList[0];
+    for(int i=1;i<csvList.length;i++) {
+      String serviceName = csvList[i][0];
+      String website = csvList[i][1];
+      String email = csvList[i][2];
+      String username = csvList[i][3];
+      String password = csvList[i][4];
+      String additionalInfo = csvList[i][5];
+      if(serviceName.isEmpty) continue;
+      else {
+        servicesList.add(serviceName);
+        if(!website.isEmpty) {
+          PasswordSharedPreferences.setWebsite(serviceName, website);
+        }
+        if(!email.isEmpty) {
+          PasswordSharedPreferences.setEmail(serviceName, email);
+        }
+        if(!username.isEmpty) {
+          PasswordSharedPreferences.setUsername(serviceName, username);
+        }
+        if(!password.isEmpty) {
+          EncryptData encryptData = EncryptData(widget.encryptionKey);
+          String encryptedPassword = encryptData.encryptAES(password);
+          PasswordSharedPreferences.setPassword(serviceName, encryptedPassword);
+        }
+        if(!additionalInfo.isEmpty) {
+          PasswordSharedPreferences.setAdditionalInfo(serviceName, additionalInfo);
+        }
+      }
+    }
+  }
+
   Map<String, dynamic> serializeSharedPreferences() {
     Set<String> keys = PasswordSharedPreferences.getAllKeys();
     Map<String, dynamic> data = {};
@@ -216,22 +310,6 @@ class MainScreenState extends State<MainScreen> {
 
   void _exitApp() {
     SystemNavigator.pop();
-  }
-
-  void _importButtonHandler() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles();
-    if (result != null) {
-      File file = File(result.files.single.path!);
-      String jsonString = file.readAsStringSync();
-      Map<String, dynamic> fileContents = jsonDecode(jsonString);
-      PasswordSharedPreferences.importKeysFromJson(fileContents);
-      setState(() {
-        servicesList = PasswordSharedPreferences.getServicesList() ?? [];
-      });
-      _openImportSuccessDialog();
-    } else {
-      _openImportFailedDialog();
-    }
   }
 
   @override
@@ -390,7 +468,7 @@ class MainScreenState extends State<MainScreen> {
                 ))),
       );
 
-  Future _openImportSuccessDialog() => showDialog(
+  Future _openImportFailedDialog(String message) => showDialog(
         context: context,
         builder: (context) => AlertDialog(
             content: Container(
@@ -399,27 +477,7 @@ class MainScreenState extends State<MainScreen> {
                   child: Column(
                     children: [
                       Text(
-                        'Done importing, Please log back in',
-                        style: TextStyle(fontSize: 16.0),
-                      ),
-                      const SizedBox(height: 20.0),
-                      ElevatedButton(onPressed: _logoutButtonHandler,
-                      child: Text('Ok'))
-                    ],
-                  ),
-                ))),
-      );
-
-  Future _openImportFailedDialog() => showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-            content: Container(
-                constraints: BoxConstraints.tightFor(height: 100.0),
-                child: Center(
-                  child: Column(
-                    children: [
-                      Text(
-                        'Import Failed, Please try again',
+                        message,
                         style: TextStyle(fontSize: 16.0),
                       ),
                       const SizedBox(height: 20.0),
@@ -479,5 +537,4 @@ class MainScreenState extends State<MainScreen> {
       },
     );
   }
-  
 }

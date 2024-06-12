@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:password_manager/screens/first_screen.dart';
 import 'package:password_manager/screens/login_screen.dart';
+import 'package:password_manager/screens/welcome_screen.dart';
 import 'model/password_preferences.dart';
 import 'package:password_manager/route.dart' as route;
 
@@ -20,6 +21,6 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(fontFamily: 'Lato'),
         restorationScopeId: "root",
         onGenerateRoute: route.controller,
-        home: hasRegistered ? LoginScreen() : FirstScreen());
+        home: hasRegistered ? LoginScreen() : WelcomeScreen());
   }
 }

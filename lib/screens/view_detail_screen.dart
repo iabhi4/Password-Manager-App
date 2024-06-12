@@ -25,8 +25,10 @@ class ViewDetailScreenState extends State<ViewDetailScreen> {
   final websiteController = TextEditingController();
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
+  final additionalInfoController = TextEditingController();
   bool isUsernameAvailable = false;
   bool isWebsiteAvailable = false;
+  bool isAdditionalInfoAvailable = false;
   bool _passwordVisible = false;
 
     @override
@@ -44,6 +46,8 @@ class ViewDetailScreenState extends State<ViewDetailScreen> {
         PasswordSharedPreferences.getUsername(widget.serviceName) ?? '';
     passwordController.text =
         PasswordSharedPreferences.getPassword(widget.serviceName) ?? '';
+    additionalInfoController.text =
+      PasswordSharedPreferences.getAdditionalInfo(widget.serviceName) ?? '';
     EncryptData encryptData =  EncryptData(widget.encryptionKey);
     String decryptedPassword = encryptData.decryptAES(passwordController.text);
     passwordController.text = decryptedPassword;
@@ -55,6 +59,11 @@ class ViewDetailScreenState extends State<ViewDetailScreen> {
     if (usernameController.text.isNotEmpty) {
       setState(() {
         isUsernameAvailable = true;
+      });
+    }
+    if (additionalInfoController.text.isNotEmpty) {
+      setState(() {
+        isAdditionalInfoAvailable = true;
       });
     }
   }
@@ -80,7 +89,8 @@ class ViewDetailScreenState extends State<ViewDetailScreen> {
             _emailTextField(),
             _passwordTextField(),
             if (isUsernameAvailable) _usernameTextField(),
-            if (isWebsiteAvailable) _websiteTextField()
+            if (isWebsiteAvailable) _websiteTextField(),
+            if (isAdditionalInfoAvailable)  _additionalInfoTextField()
           ],
         ),
       ),
@@ -159,6 +169,22 @@ class ViewDetailScreenState extends State<ViewDetailScreen> {
         ),
         controller: websiteController,
         onTap: (() => _copyToClipboard(websiteController.text)),
+      ),
+    );
+  }
+
+  Widget _additionalInfoTextField() {
+    return Padding(
+      padding: const EdgeInsets.all(15.0),
+      child: TextField(
+        readOnly: true,
+        enableInteractiveSelection: true,
+        decoration: InputDecoration(
+          labelText: 'Additional Info',
+          floatingLabelBehavior: FloatingLabelBehavior.always,
+        ),
+        controller: additionalInfoController,
+        onTap: (() => _copyToClipboard(additionalInfoController.text)),
       ),
     );
   }

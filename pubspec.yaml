@@ -45,6 +45,9 @@ dependencies:
   path_provider: ^2.1.1
   flutter_native_splash: ^2.2.18
   file_picker: ^8.0.3
+  flutter_password_strength: ^0.1.0
+  csv: ^6.0.0
+  permission_handler: ^11.3.1
 
 flutter_icons:
   image_path: "assets/lockImage.png" 
