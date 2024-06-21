@@ -171,12 +171,13 @@ class AddDetailScreenState extends State<AddDetailScreen> {
         appBar: AppBar(
           automaticallyImplyLeading: false,
           title: Text('Add Detail',
-              style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold)),
+              style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold, color: Theme.of(context).textTheme.bodyLarge!.color)),
+          backgroundColor: Theme.of(context).primaryColor,
           actions: [
             new IconButton(onPressed: _closeButtonClickHandler, icon: closeIcon)
           ],
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         resizeToAvoidBottomInset: false,
         body: SafeArea(
           child: Column(
@@ -188,8 +189,10 @@ class AddDetailScreenState extends State<AddDetailScreen> {
                   decoration: InputDecoration(
                     labelText: 'Service Name',
                     errorText: _serviceNameErrorText,
+                    errorStyle: TextStyle(fontWeight: FontWeight.bold),
                     helperText: _serviceNameHelperText,
                     floatingLabelBehavior: FloatingLabelBehavior.auto,
+                    labelStyle: TextStyle(fontWeight: FontWeight.w200, color: Theme.of(context).textTheme.bodyLarge!.color),
                   ),
                   controller: serviceNameController,
                   onChanged: (_) => setState(() {}),
@@ -201,7 +204,9 @@ class AddDetailScreenState extends State<AddDetailScreen> {
                   decoration: InputDecoration(
                     labelText: 'Website',
                     errorText: _websiteNameErrorText,
+                    errorStyle: TextStyle(fontWeight: FontWeight.bold),
                     floatingLabelBehavior: FloatingLabelBehavior.auto,
+                    labelStyle: TextStyle(fontWeight: FontWeight.w200, color: Theme.of(context).textTheme.bodyLarge!.color),
                   ),
                   controller: websiteController,
                   onChanged: (_) => setState(() {}),
@@ -213,7 +218,9 @@ class AddDetailScreenState extends State<AddDetailScreen> {
                   decoration: InputDecoration(
                     labelText: 'Email',
                     errorText: _emailErrorText,
+                    errorStyle: TextStyle(fontWeight: FontWeight.bold),
                     floatingLabelBehavior: FloatingLabelBehavior.auto,
+                    labelStyle: TextStyle(fontWeight: FontWeight.w200, color: Theme.of(context).textTheme.bodyLarge!.color),
                   ),
                   controller: emailController,
                   onChanged: (_) => setState(() {}),
@@ -225,6 +232,7 @@ class AddDetailScreenState extends State<AddDetailScreen> {
                   decoration: InputDecoration(
                     labelText: 'Username',
                     floatingLabelBehavior: FloatingLabelBehavior.auto,
+                    labelStyle: TextStyle(fontWeight: FontWeight.w200, color: Theme.of(context).textTheme.bodyLarge!.color),
                   ),
                   controller: usernameController,
                 ),
@@ -234,14 +242,16 @@ class AddDetailScreenState extends State<AddDetailScreen> {
                 child: TextField(
                   decoration: InputDecoration(
                     labelText: 'Password',
+                    labelStyle: TextStyle(fontWeight: FontWeight.w200, color: Theme.of(context).textTheme.bodyLarge!.color),
                     errorText: _passwordErrorText,
+                    errorStyle: TextStyle(fontWeight: FontWeight.bold),
                     floatingLabelBehavior: FloatingLabelBehavior.auto,
                     suffixIcon: IconButton(
                       icon: Icon(
                         _passwordVisible
                             ? Icons.visibility
                             : Icons.visibility_off,
-                        color: Theme.of(context).primaryColorDark,
+                        color: Theme.of(context).iconTheme.color,
                       ),
                       onPressed: () {
                         setState(() {
@@ -261,18 +271,18 @@ class AddDetailScreenState extends State<AddDetailScreen> {
                   decoration: InputDecoration(
                     labelText: 'Additonal Info (if any)',
                     floatingLabelBehavior: FloatingLabelBehavior.auto,
+                    labelStyle: TextStyle(fontWeight: FontWeight.w200, color: Theme.of(context).textTheme.bodyLarge!.color),
                   ),
                   controller: additionalInfoController,
                 ),
               ),
               SizedBox(height: 20.0),
               ElevatedButton(
-                  onPressed:
-                      isSubmitButtonEnabled ? _submitButtonHandler : null,
-                  child: Text('Submit')),
+                  onPressed: _submitButtonHandler, child: Text('Submit', style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).textTheme.bodyLarge?.color))),
             ],
           ),
-        ));
+        ),
+      );
   }
 
   @override

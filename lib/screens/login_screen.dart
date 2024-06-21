@@ -1,9 +1,7 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:password_manager/model/password_preferences.dart';
 import 'package:password_manager/route.dart' as route;
-import 'package:password_manager/model/encrypt_decrypt_data.dart';
 import 'package:crypto/crypto.dart';
 import 'dart:convert';
 
@@ -20,6 +18,7 @@ class LoginScreenState extends State<LoginScreen> {
   final String wrongMessage = "Incorrect Password";
   bool _passwordVisible = false;
 
+/*****************************************BACKEND STARTS**************************************************** */
   @override
   void initState() {
     super.initState();
@@ -47,8 +46,12 @@ class LoginScreenState extends State<LoginScreen> {
 
   Future<bool> onWillPop() async {
     enteredPasswordController.clear();
-    SystemNavigator.pop();
+    _showDialog("Confirm Exit?", "Yes", _exitButtonHandler);
     return false;
+  }
+
+  void _exitButtonHandler() {
+    SystemNavigator.pop();
   }
 
   void _onTextFieldChange() {
@@ -63,20 +66,51 @@ class LoginScreenState extends State<LoginScreen> {
     }
       
   }
+  /*****************************************BACKEND ENDS**************************************************** */
 
   @override
   Widget build(BuildContext context) {
     return WillPopScope(child: loginScreenScaffold(), onWillPop: onWillPop);
   }
 
+/*****************************************FRONTEND STARTS**************************************************** */
+
+  Future _showDialog(String message, String buttonMessage, Function method) => showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+            content: Container(
+                constraints: BoxConstraints.tightFor(height: 100.0),
+                child: Center(
+                  child: Column(
+                    children: [
+                      SelectableText(
+                        message,
+                        style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color),
+                      ),
+                      const SizedBox(height: 20.0),
+                      ElevatedButton(
+                        onPressed: () => method(),
+                        child: Text(buttonMessage, style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color)),
+                        style: ElevatedButton.styleFrom(
+                          fixedSize: Size(80, 25),
+                          backgroundColor: Theme.of(context).elevatedButtonTheme.style?.backgroundColor?.resolve({})
+                        ),
+                      )
+                    ],
+                  ),
+                ))),
+      );
+
+
   Scaffold loginScreenScaffold() {
     return Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
-          title: Text("Password Manager"),
+          title: Text("Password Manager", style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).textTheme.bodyLarge?.color),),
           centerTitle: true,
+          backgroundColor: Theme.of(context).primaryColor,
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         resizeToAvoidBottomInset: false,
         body: SafeArea(
           child: Center(
@@ -85,15 +119,15 @@ class LoginScreenState extends State<LoginScreen> {
                 SizedBox(height: 60.0),
                 Text("Your Passwords?",
                     style:
-                        TextStyle(fontSize: 32.0, fontWeight: FontWeight.bold)),
+                        TextStyle(fontSize: 32.0, fontWeight: FontWeight.bold, color: Theme.of(context).textTheme.bodyLarge?.color)),
                 SizedBox(height: 10.0),
                 Text("Got you covered!!",
                     style:
-                        TextStyle(fontSize: 26.0, fontWeight: FontWeight.bold)),
+                        TextStyle(fontSize: 26.0, fontWeight: FontWeight.bold, color: Theme.of(context).textTheme.bodyLarge?.color)),
                 SizedBox(height: 40.0),
                 Icon(
                   Icons.lock_open,
-                  color: Colors.grey.shade900,
+                  color: Theme.of(context).textTheme.bodyLarge?.color,
                   size: 85.0,
                 ),
                 SizedBox(height: 80.0),
@@ -106,12 +140,13 @@ class LoginScreenState extends State<LoginScreen> {
                         border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(50.0)),
                         hintText: 'Root password',
+                        hintStyle: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color),
                         suffixIcon: IconButton(
                           icon: Icon(
                             _passwordVisible
                                 ? Icons.visibility
                                 : Icons.visibility_off,
-                            color: Theme.of(context).primaryColorDark,
+                            color: Theme.of(context).iconTheme.color,
                           ),
                           onPressed: () {
                             setState(() {
@@ -125,11 +160,14 @@ class LoginScreenState extends State<LoginScreen> {
                 ),
                 SizedBox(height: 10.0),
                 ElevatedButton(
-                    onPressed: _comparePassword, child: Text('Submit')),
-                Text(messageToDisplay),
+                    onPressed: _comparePassword, child: Text('Submit', style:
+                        TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).textTheme.bodyLarge?.color))),
+                Text(messageToDisplay, style:
+                        TextStyle(fontWeight: FontWeight.normal, color: Theme.of(context).textTheme.bodyLarge?.color)),
               ],
             ),
           ),
         ));
   }
+/*****************************************FRONTEND ENDS**************************************************** */
 }

@@ -80,7 +80,9 @@ class ViewDetailScreenState extends State<ViewDetailScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.serviceName.toUpperCase(),
-            style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold)),
+        style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold, color: Theme.of(context).textTheme.bodyLarge!.color)),
+        backgroundColor: Theme.of(context).primaryColor,
+        iconTheme: Theme.of(context).iconTheme,
         centerTitle: true,
       ),
       body: SafeArea(
@@ -94,6 +96,7 @@ class ViewDetailScreenState extends State<ViewDetailScreen> {
           ],
         ),
       ),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor
     );
   }
 
@@ -105,6 +108,7 @@ class ViewDetailScreenState extends State<ViewDetailScreen> {
         enableInteractiveSelection: true,
         decoration: InputDecoration(
           labelText: 'Email',
+          labelStyle: TextStyle(fontWeight: FontWeight.w200, color: Theme.of(context).textTheme.bodyLarge!.color),
           floatingLabelBehavior: FloatingLabelBehavior.always,
         ),
         controller: emailController,
@@ -122,11 +126,12 @@ class ViewDetailScreenState extends State<ViewDetailScreen> {
         obscureText: !_passwordVisible,
         decoration: InputDecoration(
           labelText: 'Password',
+          labelStyle: TextStyle(fontWeight: FontWeight.w200, color: Theme.of(context).textTheme.bodyLarge!.color),
           floatingLabelBehavior: FloatingLabelBehavior.always,
           suffixIcon: IconButton(
             icon: Icon(
               _passwordVisible ? Icons.visibility : Icons.visibility_off,
-              color: Theme.of(context).primaryColorDark,
+              color: Theme.of(context).iconTheme.color,
             ),
             onPressed: () {
               setState(() {
@@ -149,6 +154,7 @@ class ViewDetailScreenState extends State<ViewDetailScreen> {
         enableInteractiveSelection: true,
         decoration: InputDecoration(
           labelText: 'Username',
+          labelStyle: TextStyle(fontWeight: FontWeight.w200, color: Theme.of(context).textTheme.bodyLarge!.color),
           floatingLabelBehavior: FloatingLabelBehavior.always,
         ),
         controller: usernameController,
@@ -165,6 +171,7 @@ class ViewDetailScreenState extends State<ViewDetailScreen> {
         enableInteractiveSelection: true,
         decoration: InputDecoration(
           labelText: 'Website',
+          labelStyle: TextStyle(fontWeight: FontWeight.w200, color: Theme.of(context).textTheme.bodyLarge!.color),
           floatingLabelBehavior: FloatingLabelBehavior.always,
         ),
         controller: websiteController,
@@ -181,6 +188,7 @@ class ViewDetailScreenState extends State<ViewDetailScreen> {
         enableInteractiveSelection: true,
         decoration: InputDecoration(
           labelText: 'Additional Info',
+          labelStyle: TextStyle(fontWeight: FontWeight.w200, color: Theme.of(context).textTheme.bodyLarge!.color),
           floatingLabelBehavior: FloatingLabelBehavior.always,
         ),
         controller: additionalInfoController,

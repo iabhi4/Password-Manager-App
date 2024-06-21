@@ -20,8 +20,12 @@ class WelcomeScreenState extends State<WelcomeScreen> {
   }
 
   Future<bool> onWillPop() async {
-    SystemNavigator.pop();
+    _showDialog("Confirm Exit?", "Yes", _exitButtonHandler);
     return false;
+  }
+
+  void _exitButtonHandler() {
+    SystemNavigator.pop();
   }
 
   void _routeToSignUpPage() {
@@ -32,6 +36,10 @@ class WelcomeScreenState extends State<WelcomeScreen> {
     Navigator.pushNamed(context, route.loginScreen);
   }
 
+  void _closeDialog() {
+    Navigator.of(context).pop();
+  }
+
   void _importButtonHandler() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles();
     if (result != null) {
@@ -39,19 +47,17 @@ class WelcomeScreenState extends State<WelcomeScreen> {
       String jsonString = file.readAsStringSync();
       Map<String, dynamic> fileContents = jsonDecode(jsonString);
       if(!fileContents.containsKey("rootPassword") || !fileContents.containsKey("hasRegistered")) {
-        String message = "Import Failed, Wrong file";
-        _openImportFailedDialog(message);
+        _showDialog("Import Failed, Wrong file", "Ok", _closeDialog);
         return;
       }
       PasswordSharedPreferences.importKeysFromJson(fileContents);
-      _openImportSuccessDialog();
+      _showDialog('Done importing, Please log back in', 'Ok', _routeToLoginPage);
     } else {
-      String message = "Import failed, Please try again";
-      _openImportFailedDialog(message);
+      _showDialog("Import failed, Please try again", 'Ok', _closeDialog);
     }
   }
 
-  Future _openImportSuccessDialog() => showDialog(
+  Future _showDialog(String message, String buttonMessage, Function method) => showDialog(
         context: context,
         builder: (context) => AlertDialog(
             content: Container(
@@ -59,35 +65,19 @@ class WelcomeScreenState extends State<WelcomeScreen> {
                 child: Center(
                   child: Column(
                     children: [
-                      Text(
-                        'Done importing, Please log back in',
-                        style: TextStyle(fontSize: 16.0),
-                      ),
-                      const SizedBox(height: 20.0),
-                      ElevatedButton(onPressed: _routeToLoginPage,
-                      child: Text('Ok'))
-                    ],
-                  ),
-                ))),
-      );
-
-  Future _openImportFailedDialog(String message) => showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-            content: Container(
-                constraints: BoxConstraints.tightFor(height: 100.0),
-                child: Center(
-                  child: Column(
-                    children: [
-                      Text(
+                      SelectableText(
                         message,
-                        style: TextStyle(fontSize: 16.0),
+                        style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color),
                       ),
                       const SizedBox(height: 20.0),
-                      ElevatedButton(onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: Text('Ok'))
+                      ElevatedButton(
+                        onPressed: () => method(),
+                        child: Text(buttonMessage, style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color)),
+                        style: ElevatedButton.styleFrom(
+                          fixedSize: Size(80, 25),
+                          backgroundColor: Theme.of(context).elevatedButtonTheme.style?.backgroundColor?.resolve({})
+                        ),
+                      )
                     ],
                   ),
                 ))),
@@ -103,15 +93,15 @@ class WelcomeScreenState extends State<WelcomeScreen> {
         actions: <Widget>[
           TextButton(
             onPressed: () {
-
+              _importButtonHandler();
             },
-            child: Text('Import Backup'),
+            child: Text('Import Backup', style: TextStyle(fontWeight: FontWeight.bold ,color: Theme.of(context).iconTheme.color)),
           ),
           TextButton(
             onPressed: () {
               Navigator.pushNamed(context, route.firstScreen);
             },
-            child: Text('Sign Up'),
+            child: Text('Sign Up', style: TextStyle(fontWeight: FontWeight.bold ,color: Theme.of(context).iconTheme.color)),
           ),
         ],
       );
@@ -122,12 +112,12 @@ class WelcomeScreenState extends State<WelcomeScreen> {
   Scaffold welcomeScreenScaffold() {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Password Manager',
+          automaticallyImplyLeading: false,
+          title: Text("Password Manager", style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).textTheme.bodyLarge?.color),),
+          centerTitle: true,
+          backgroundColor: Theme.of(context).primaryColor,
         ),
-        centerTitle: true,
-      ),
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       resizeToAvoidBottomInset: false,
       body: SafeArea(
         child: Center(
@@ -139,25 +129,25 @@ class WelcomeScreenState extends State<WelcomeScreen> {
                 style: TextStyle(
                     fontSize: 32.0,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black87),
+                    color: Theme.of(context).textTheme.bodyLarge?.color),
               ),
               SizedBox(
                 height: 80.0,
               ),
               Text(
                 'New here or back?',
-                style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold, color: Theme.of(context).textTheme.bodyLarge?.color),
               ),
               SizedBox(
                 height: 30.0,
               ),
               ElevatedButton(
-                  onPressed: _routeToSignUpPage, child: Text('I\'m New')),
+                  onPressed: _routeToSignUpPage, child: Text('I\'m New', style: TextStyle(fontWeight: FontWeight.bold ,color: Theme.of(context).textTheme.bodyLarge?.color))),
               SizedBox(
                 height: 30.0,
               ),
               ElevatedButton(
-                  onPressed: _signUpPageDialog, child: Text('I\'m Returning')),
+                  onPressed: _signUpPageDialog, child: Text('I\'m Returning', style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).textTheme.bodyLarge?.color))),
             ],
           ),
         ),

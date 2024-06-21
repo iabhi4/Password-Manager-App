@@ -102,4 +102,7 @@ class PasswordSharedPreferences {
       }
     }
   }
+  static clearSharedPreferences() async {
+    await _preferences.clear();
+  }
 }
