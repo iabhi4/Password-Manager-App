@@ -27,6 +27,7 @@ flutter pub get
 ```
 flutter run
 ```
+* For Android devices, download the .apk file from release
 
 ## Contributions
 Contributions are welcome! Please submit a pull request or open an issue to discuss improvements or bugs.
