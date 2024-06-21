@@ -25,8 +25,10 @@ class ViewDetailScreenState extends State<ViewDetailScreen> {
   final websiteController = TextEditingController();
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
+  final additionalInfoController = TextEditingController();
   bool isUsernameAvailable = false;
   bool isWebsiteAvailable = false;
+  bool isAdditionalInfoAvailable = false;
   bool _passwordVisible = false;
 
     @override
@@ -44,6 +46,8 @@ class ViewDetailScreenState extends State<ViewDetailScreen> {
         PasswordSharedPreferences.getUsername(widget.serviceName) ?? '';
     passwordController.text =
         PasswordSharedPreferences.getPassword(widget.serviceName) ?? '';
+    additionalInfoController.text =
+      PasswordSharedPreferences.getAdditionalInfo(widget.serviceName) ?? '';
     EncryptData encryptData =  EncryptData(widget.encryptionKey);
     String decryptedPassword = encryptData.decryptAES(passwordController.text);
     passwordController.text = decryptedPassword;
@@ -55,6 +59,11 @@ class ViewDetailScreenState extends State<ViewDetailScreen> {
     if (usernameController.text.isNotEmpty) {
       setState(() {
         isUsernameAvailable = true;
+      });
+    }
+    if (additionalInfoController.text.isNotEmpty) {
+      setState(() {
+        isAdditionalInfoAvailable = true;
       });
     }
   }
@@ -71,7 +80,9 @@ class ViewDetailScreenState extends State<ViewDetailScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.serviceName.toUpperCase(),
-            style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold)),
+        style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold, color: Theme.of(context).textTheme.bodyLarge!.color)),
+        backgroundColor: Theme.of(context).primaryColor,
+        iconTheme: Theme.of(context).iconTheme,
         centerTitle: true,
       ),
       body: SafeArea(
@@ -80,10 +91,12 @@ class ViewDetailScreenState extends State<ViewDetailScreen> {
             _emailTextField(),
             _passwordTextField(),
             if (isUsernameAvailable) _usernameTextField(),
-            if (isWebsiteAvailable) _websiteTextField()
+            if (isWebsiteAvailable) _websiteTextField(),
+            if (isAdditionalInfoAvailable)  _additionalInfoTextField()
           ],
         ),
       ),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor
     );
   }
 
@@ -95,6 +108,7 @@ class ViewDetailScreenState extends State<ViewDetailScreen> {
         enableInteractiveSelection: true,
         decoration: InputDecoration(
           labelText: 'Email',
+          labelStyle: TextStyle(fontWeight: FontWeight.w200, color: Theme.of(context).textTheme.bodyLarge!.color),
           floatingLabelBehavior: FloatingLabelBehavior.always,
         ),
         controller: emailController,
@@ -112,11 +126,12 @@ class ViewDetailScreenState extends State<ViewDetailScreen> {
         obscureText: !_passwordVisible,
         decoration: InputDecoration(
           labelText: 'Password',
+          labelStyle: TextStyle(fontWeight: FontWeight.w200, color: Theme.of(context).textTheme.bodyLarge!.color),
           floatingLabelBehavior: FloatingLabelBehavior.always,
           suffixIcon: IconButton(
             icon: Icon(
               _passwordVisible ? Icons.visibility : Icons.visibility_off,
-              color: Theme.of(context).primaryColorDark,
+              color: Theme.of(context).iconTheme.color,
             ),
             onPressed: () {
               setState(() {
@@ -139,6 +154,7 @@ class ViewDetailScreenState extends State<ViewDetailScreen> {
         enableInteractiveSelection: true,
         decoration: InputDecoration(
           labelText: 'Username',
+          labelStyle: TextStyle(fontWeight: FontWeight.w200, color: Theme.of(context).textTheme.bodyLarge!.color),
           floatingLabelBehavior: FloatingLabelBehavior.always,
         ),
         controller: usernameController,
@@ -155,10 +171,28 @@ class ViewDetailScreenState extends State<ViewDetailScreen> {
         enableInteractiveSelection: true,
         decoration: InputDecoration(
           labelText: 'Website',
+          labelStyle: TextStyle(fontWeight: FontWeight.w200, color: Theme.of(context).textTheme.bodyLarge!.color),
           floatingLabelBehavior: FloatingLabelBehavior.always,
         ),
         controller: websiteController,
         onTap: (() => _copyToClipboard(websiteController.text)),
+      ),
+    );
+  }
+
+  Widget _additionalInfoTextField() {
+    return Padding(
+      padding: const EdgeInsets.all(15.0),
+      child: TextField(
+        readOnly: true,
+        enableInteractiveSelection: true,
+        decoration: InputDecoration(
+          labelText: 'Additional Info',
+          labelStyle: TextStyle(fontWeight: FontWeight.w200, color: Theme.of(context).textTheme.bodyLarge!.color),
+          floatingLabelBehavior: FloatingLabelBehavior.always,
+        ),
+        controller: additionalInfoController,
+        onTap: (() => _copyToClipboard(additionalInfoController.text)),
       ),
     );
   }
